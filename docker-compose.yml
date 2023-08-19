@@ -1,0 +1,32 @@
+# Use postgres/example user/password credentials
+version: '3.1'
+
+services:
+  db:
+    container_name: db_urparts
+    build: ./db
+    restart: always
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+      
+  scrapper:
+    container_name: scrap_urparts
+    build: ./scrapper
+    volumes:
+      - ./scrapper/src:/code/scrapper
+    depends_on:
+      - db
+    environment:
+      PYTHONUNBUFFERED: 1
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+        reservations:
+          cpus: '3'
+
+
