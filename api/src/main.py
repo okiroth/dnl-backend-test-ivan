@@ -6,7 +6,7 @@ from .database import SessionLocal, engine
 
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(debug=True)
 
 def get_db():
     db = SessionLocal()
@@ -17,15 +17,19 @@ def get_db():
 
 
 @app.get("/", response_model=list[schemas.Brand])
-def read_brands(skip: int = 0, limit: int = 10, brand_name: str = None):
-    db: Session = Depends(get_db)
-    if brand_name is not None:
-        return crud.get_brand(db, brand_name)    
-    return crud.get_brands(db, skip, limit)
+def read_brands(
+    db: Session = Depends(get_db),
+    skip: int = 0, 
+    limit: int = 10, 
+    brand_name: str = ""
+):
+    return crud.get_brands(db, skip, limit, brand_name)
 
 
-@app.get("/brand/{brand_name}", response_model=schemas.Brand)
-def read_brand(brand_name: str):
-    db: Session = Depends(get_db)
-    return crud.get_brand(db, brand_name)
+@app.get("/brand/{name}", response_model=schemas.Brand)
+def read_brand(
+    db: Session = Depends(get_db),
+    name: str = ""
+):
+    return crud.get_brand(db, name)
 

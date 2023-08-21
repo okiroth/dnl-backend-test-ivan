@@ -9,16 +9,22 @@ services:
 
   adminer:
     image: adminer
-    restart: always
     ports:
       - 8080:8080
+    restart: always
 
   api:
     container_name: api_urparts
     build: ./api
-    restart: always
     ports:
       - 80:80
+    volumes:
+      - ./api/src:/code/api
+    environment:
+      - DEBUG=1
+      - WATCHFILES_FORCE_POLLING=true
+    restart: on-failure
+
       
   scrapper:
     container_name: scrap_urparts
