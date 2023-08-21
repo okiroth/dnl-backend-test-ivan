@@ -57,9 +57,9 @@ def save_json_to_DB():
                 model_id = cursor.fetchone()[0]
 
                 psycopg2.extras.execute_values(cursor, """
-                    INSERT INTO model_parts (model_id, code, name, url) VALUES %s;
+                    INSERT INTO parts (model_id, code, name, url) VALUES %s;
                     """, [
-                        (model_id, part.get('code', ''), part['name'], part['url']) for part in model["model_parts"]
+                        (model_id, part.get('code', ''), part['name'], part['url']) for part in model["parts"]
                     ])
                 
     # Commit changes and close connection

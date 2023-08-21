@@ -1,31 +1,29 @@
-from pydantic import BaseModel
+from typing import Optional
+from pydantic import BaseModel, ConfigDict
+
 
 
 class Base(BaseModel):
     name: str
     url: str
 
-class Model_Parts(Base):
+
+class Parts(Base):
+    model_config = ConfigDict(from_attributes=True)
     id: int
-    code: str
-    class Config:
-        orm_mode = True
+    code: Optional[str] = None
 
 class Model(Base):
+    model_config = ConfigDict(from_attributes=True)
     id: int
-    model_parts: list[Model_Parts] = []
-    class Config:
-        orm_mode = True
+    parts: list[Parts]
 
 class Category(Base):
+    model_config = ConfigDict(from_attributes=True)
     id: int
-    brand_id: int
-    models: list[Model] = []
-    class Config:
-        orm_mode = True
+    models: list[Model]
 
 class Brand(Base):
+    model_config = ConfigDict(from_attributes=True)
     id: int
-    categories: list[Category] = []
-    class Config:
-        orm_mode = True
+    categories: list[Category]

@@ -39,22 +39,22 @@ async def scrape_data():
             async with aiohttp.ClientSession() as session:
                 tasks = []
                 for model in category['models']:
-                    model['model_parts'] = []
-                    tasks.append(asyncio.ensure_future(get_model_parts(session, model)))
-                res_model_parts = await asyncio.gather(*tasks)
-                for model_parts_count in res_model_parts:
-                    brand_count += model_parts_count
+                    model['parts'] = []
+                    tasks.append(asyncio.ensure_future(get_parts(session, model)))
+                res_parts = await asyncio.gather(*tasks)
+                for parts_count in res_parts:
+                    brand_count += parts_count
         print(f"[{ii}/{brands_total}] {brand['name']}...{brand_count:,.0f} parts")
     save_to_json(results)
     print('DATA SCRAPPED')
 
 
-async def get_model_parts(session, model):
+async def get_parts(session, model):
     async with session.get(URL_BASE + '/' + model['url']) as resp:
         page = await resp.text()
         parts = get_ul_from_html(page, 'c_container allparts')
-        append_results(parts, model['model_parts'], split_name=True)
-        return len(model['model_parts'])
+        append_results(parts, model['parts'], split_name=True)
+        return len(model['parts'])
 
 
 def request_ul(url, class_name):

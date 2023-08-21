@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS model_parts;
+DROP TABLE IF EXISTS parts;
 DROP TABLE IF EXISTS models;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS brands;
@@ -23,7 +23,7 @@ CREATE TABLE models (
     url VARCHAR(255)
 );
 
-CREATE TABLE model_parts (
+CREATE TABLE parts (
     id SERIAL PRIMARY KEY,
     model_id INT REFERENCES models(id),
     code VARCHAR(255),

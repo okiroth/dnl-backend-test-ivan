@@ -1,7 +1,11 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from .database import Base
+from sqlalchemy.ext.declarative import declarative_base
+
+
+Base = declarative_base()
+
 
 class Brand(Base):
     __tablename__ = "brands"
@@ -10,7 +14,7 @@ class Brand(Base):
     name = Column(String, unique=True)
     url = Column(String, unique=True)
 
-    items = relationship("Category", back_populates="owner")
+    categories = relationship("Category", back_populates="owner")
 
 
 class Category(Base):
@@ -20,8 +24,10 @@ class Category(Base):
     name = Column(String, unique=True)
     url = Column(String, unique=True)
 
-    brand_id = Column(Integer, ForeignKey("brand_id"))
+    brand_id = Column(Integer, ForeignKey("brands.id"))
     owner = relationship("Brand", back_populates="categories")
+
+    models = relationship("Model", back_populates="owner")
 
 
 class Model(Base):
@@ -30,18 +36,20 @@ class Model(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True)
     url = Column(String, unique=True)
-    
-    category_id = Column(Integer, ForeignKey("category_id"))
+
+    category_id = Column(Integer, ForeignKey("categories.id"))
     owner = relationship("Category", back_populates="models")
 
+    parts = relationship("Part", back_populates="owner")
+    
 
-class Model_Part(Base):
-    __tablename__ = "model_parts"
+class Part(Base):
+    __tablename__ = "parts"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True)
     name = Column(String, unique=True)
     url = Column(String, unique=True)
 
-    model_id = Column(Integer, ForeignKey("model_id"))
-    owner = relationship("Model", back_populates="model_parts")
+    model_id = Column(Integer, ForeignKey("models.id"))
+    owner = relationship("Model", back_populates="parts")
