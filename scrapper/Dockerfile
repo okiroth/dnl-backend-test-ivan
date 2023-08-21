@@ -2,11 +2,11 @@ FROM python:3.9
 
 WORKDIR /code/scrapper
 
-COPY scrapper_packages.txt ./
-RUN pip install -r scrapper_packages.txt
+COPY requirements.txt ./
+RUN pip install -r requirements.txt
 
 ENV NUM_THREADS=40
 
 COPY . .
 
-CMD [ "python", "./app.py" ]
+CMD [ "python", "./main.py" ]

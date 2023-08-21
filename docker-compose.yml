@@ -12,6 +12,13 @@ services:
     restart: always
     ports:
       - 8080:8080
+
+  api:
+    container_name: api_urparts
+    build: ./api
+    restart: always
+    ports:
+      - 80:80
       
   scrapper:
     container_name: scrap_urparts
