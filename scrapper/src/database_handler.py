@@ -2,15 +2,19 @@ import psycopg2
 import psycopg2.extras
 import json
 
-def save_data_to_DB():
-    file_data = open('results.json', 'r')
-    data = json.loads(file_data.read())
-    file_data.close()
-
+def get_table_schema():
     file_schema = open('DB_SCHEMA.sql', 'r')
     schema = file_schema.read()
     file_schema.close()
+    return schema
 
+def get_json_data():
+    file_data = open('results.json', 'r')
+    data = json.loads(file_data.read())
+    file_data.close()
+    return data
+
+def save_json_to_DB():
     # Connect to the PostgreSQL database
     connection = psycopg2.connect(
         host="db",
@@ -20,15 +24,20 @@ def save_data_to_DB():
     )
     cursor = connection.cursor()
 
-    cursor.execute(schema)
+    cursor.execute(get_table_schema())
     connection.commit()
 
     print('SAVING DATA')
+    data = get_json_data()
 
-    # Iterate through the JSON data and insert into the tables
+    brands_total = len(data['brands'])
+    ii = 0
     for brand in data["brands"]:
         brand_name = brand["name"]
         brand_url = brand["url"]
+
+        ii += 1
+        print(f"[{ii}/{brands_total}] {brand['name']}...")
 
         cursor.execute("INSERT INTO brands (name, url) VALUES (%s, %s) RETURNING id", (brand_name, brand_url))
         brand_id = cursor.fetchone()[0]
@@ -53,9 +62,7 @@ def save_data_to_DB():
                         (model_id, part.get('code', ''), part['name'], part['url']) for part in model["model_parts"]
                     ])
                 
-                print(f"{brand_name} -> {category_name} -> {model_name} -> {len(model['model_parts'])} parts")
-
-    # Commit the changes and close the connection
+    # Commit changes and close connection
     connection.commit()
     cursor.close()
     connection.close()

@@ -22,11 +22,11 @@ services:
       - db
     environment:
       PYTHONUNBUFFERED: 1
-    deploy:
-      resources:
-        limits:
-          cpus: '4'
-        reservations:
-          cpus: '3'
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '4'
+    #     reservations:
+    #       cpus: '3'
 
 

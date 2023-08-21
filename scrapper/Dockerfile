@@ -9,4 +9,4 @@ ENV NUM_THREADS=40
 
 COPY . .
 
-CMD [ "python", "./scrapper.py" ]
+CMD [ "python", "./app.py" ]
