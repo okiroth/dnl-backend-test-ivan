@@ -27,7 +27,7 @@ class Category(Base):
     brand_id = Column(Integer, ForeignKey("brands.id"))
     owner = relationship("Brand", back_populates="categories")
 
-    models = relationship("Model", back_populates="owner")
+    models = relationship("Model", back_populates="owner", lazy='noload')
 
 
 class Model(Base):
@@ -40,7 +40,7 @@ class Model(Base):
     category_id = Column(Integer, ForeignKey("categories.id"))
     owner = relationship("Category", back_populates="models")
 
-    parts = relationship("Part", back_populates="owner")
+    parts = relationship("Part", back_populates="owner", lazy='noload')
     
 
 class Part(Base):

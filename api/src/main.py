@@ -19,7 +19,7 @@ def get_db():
 
 
 @app.get("/", response_model=list[schemas.Brand])
-def read_brands(skip: int = 0, limit: int = 2, db: Session = Depends(get_db)):
+def read_brands(skip: int = 0, limit: int = 1000, db: Session = Depends(get_db)):
     db_res = crud.get_brands(db, skip=skip, limit=limit)
     return db_res
 
