@@ -72,7 +72,7 @@ async def scrape_data():
 
     print('TOTAL parts ' + str(countme))
     print('URLS: ', urls)
-    # save_to_json(results)
+    save_to_json(results)
     print('SCRAPPING DATA DONE')
 
 
