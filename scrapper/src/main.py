@@ -16,6 +16,8 @@ def run():
     print("--- %s seconds ---" % round(time.time() - start_time, 2))
 
 
+
+
 async def scrape_data():
     print('SCRAPPING DATA')
     results = {}
@@ -24,8 +26,8 @@ async def scrape_data():
     html = requests.get(URL_BASE + '/' + URL_BRANDS).content
     results['brands'] = process_html(html, 'c_container allmakes')
 
-
-    
+    urls = 0
+    countme = 0
 
     async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False, limit=2000)) as session:
 
@@ -33,6 +35,7 @@ async def scrape_data():
         tasks = []
         for brand in results['brands']:
             tasks.append(asyncio.create_task(fetch(session, brand['url'])))
+            urls += 1
         responses_0 = await asyncio.gather(*tasks)
 
         ## Process Brands Respones ---> Tasks Categories
@@ -40,11 +43,12 @@ async def scrape_data():
             brand = results['brands'][ii]
             brand['categories'] = process_html(html, 'c_container allmakes allcategories')
 
-            print('==============  ' + brand['name'] + '  ==============')
+            print(ii, '==============  ' + brand['name'] + '  ==============')
 
             tasks = []
             for category in brand['categories']:
                 tasks.append(asyncio.create_task(fetch(session, category['url'])))
+                urls += 1
             responses_1 = await asyncio.gather(*tasks)
 
             # Process Categories Respones ---> Tasks Models
@@ -54,7 +58,9 @@ async def scrape_data():
 
                 tasks = []
                 for model in category['models']:
-                    task = asyncio.create_task(fetch(session, model['url']))
+                    countme += 1
+                    task = asyncio.create_task(fetch(session, model['url']), name=f'model ')
+
                     task.add_done_callback(progress)
                     tasks.append(task)
                 responses_2 = await asyncio.gather(*tasks)
@@ -64,7 +70,9 @@ async def scrape_data():
                     model = category['models'][iiii]
                     model['parts'] = process_html(html, 'c_container allparts')
 
-    save_to_json(results)
+    print('TOTAL parts ' + str(countme))
+    print('URLS: ', urls)
+    # save_to_json(results)
     print('SCRAPPING DATA DONE')
 
 
