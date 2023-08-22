@@ -19,82 +19,92 @@ def run():
 async def scrape_data():
     print('SCRAPPING DATA')
     results = {}
-    results['brands'] = []
-    brands = request_ul(URL_BRANDS, 'c_container allmakes')
-    append_results(brands, results['brands'])
-    # start URLs scrapping
-    brands_total = len(results['brands'])
-    ii = 0
-    for brand in results['brands']:
-        ii += 1
-        print(f"[{ii}/{brands_total}] {brand['name']}...")
-        brand_count = 0
-        brand['categories'] = []
-        categories = request_ul(brand['url'], 'c_container allmakes allcategories')
-        append_results(categories, brand['categories'])
-        for category in brand['categories']:
-            category['models'] = []
-            models = request_ul(category['url'], 'c_container allmodels')
-            append_results(models, category['models'])
-            async with aiohttp.ClientSession() as session:
+
+    ## First Request
+    html = requests.get(URL_BASE + '/' + URL_BRANDS).content
+    results['brands'] = process_html(html, 'c_container allmakes')
+
+
+    
+
+    async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False, limit=2000)) as session:
+
+        ## Task Brands
+        tasks = []
+        for brand in results['brands']:
+            tasks.append(asyncio.create_task(fetch(session, brand['url'])))
+        responses_0 = await asyncio.gather(*tasks)
+
+        ## Process Brands Respones ---> Tasks Categories
+        for ii, html in enumerate(responses_0):
+            brand = results['brands'][ii]
+            brand['categories'] = process_html(html, 'c_container allmakes allcategories')
+
+            print('==============  ' + brand['name'] + '  ==============')
+
+            tasks = []
+            for category in brand['categories']:
+                tasks.append(asyncio.create_task(fetch(session, category['url'])))
+            responses_1 = await asyncio.gather(*tasks)
+
+            # Process Categories Respones ---> Tasks Models
+            for iii, html in enumerate(responses_1):
+                category = brand['categories'][iii]
+                category['models'] = process_html(html, 'c_container allmodels')
+
                 tasks = []
                 for model in category['models']:
-                    model['parts'] = []
-                    tasks.append(asyncio.ensure_future(get_parts(session, model)))
-                res_parts = await asyncio.gather(*tasks)
-                for parts_count in res_parts:
-                    brand_count += parts_count
-        print(f"[{ii}/{brands_total}] {brand['name']}...{brand_count:,.0f} parts")
+                    task = asyncio.create_task(fetch(session, model['url']))
+                    task.add_done_callback(progress)
+                    tasks.append(task)
+                responses_2 = await asyncio.gather(*tasks)
+
+                # Process Parts
+                for iiii, html in enumerate(responses_2):
+                    model = category['models'][iiii]
+                    model['parts'] = process_html(html, 'c_container allparts')
+
     save_to_json(results)
-    print('DATA SCRAPPED')
+    print('SCRAPPING DATA DONE')
 
 
-async def get_parts(session, model):
-    async with session.get(URL_BASE + '/' + model['url']) as resp:
-        page = await resp.text()
-        parts = get_ul_from_html(page, 'c_container allparts')
-        append_results(parts, model['parts'], split_name=True)
-        return len(model['parts'])
+async def fetch(session, url):
+    print(url)
+    async with session.get(URL_BASE + '/' + url) as response:
+        return await response.text()
 
 
-def request_ul(url, class_name):
-    page = requests.get(URL_BASE + '/' + url)
-    content = page.content
-    return get_ul_from_html(content, class_name)
+def progress(task):
+    # report progress of the task
+    print(task.get_name())
 
-
-def get_ul_from_html(content, class_name):
-    soup = BeautifulSoup(content, 'html.parser')
+def process_html(html, class_name, split_name=False):
+    res = []
+    soup = BeautifulSoup(html, 'html.parser')
     try:
         container = soup.find('div', class_=class_name)
         list = container.find('ul')
     except Exception as e:
         return []
-    return list.findAll('li')
-
-
-def append_results(ul, results, split_name=False, limit=5000):
-    count = 0
+    ul = list.findAll('li')
     for li in ul:
         link = li.find('a')
         name = link.get_text().strip()
         name_arr = name.split('-')
         if len(name_arr) > 1 and split_name:
-            results.append({
-                "code": name_arr[0].strip(), 
-                "name": name_arr[1].strip(), 
-                "url": link['href']
+            res.append({
+                'code': name_arr[0].strip(), 
+                'name': name_arr[1].strip(), 
+                'url': link['href']
             })
         else:
-            results.append({ "name": name, "url": link['href'] })
-        count += 1
-        if count > limit:
-            break
+            res.append({ 'name': name, 'url': link['href'] })
+    return res
 
 
 def save_to_json(results):
     file1 = open('results.json', 'w')
-    file1.write(json.dumps(results))
+    file1.write(json.dumps(results, indent=1))
     file1.close()
 
 
