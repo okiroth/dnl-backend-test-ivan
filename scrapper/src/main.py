@@ -11,8 +11,8 @@ URL_BRANDS = 'index.cfm/page/catalogue'
 
 def run():
     start_time = time.time()
-    # asyncio.run(scrape_data())
-    # save_json_to_DB()
+    asyncio.run(scrape_data())
+    save_json_to_DB()
     print("--- %s seconds ---" % round(time.time() - start_time, 2))
 
 

@@ -1,16 +1,22 @@
 # DNL Backend Test Project
 
 ### Overview
-This project consists of `3` main Docker processes:
+This project consists of `3` main processes:
 - `API`: Queries the DB
 - `DB`: The database instance
 - `SCRAPPER`: Runs throught the website and stores the data into the DB.
 
-## Run All
+## Run it
 ```
-docker-compose up --build
+docker compose up --build
 ```
-This command will run all 3 Docker processes
+This command will run all Docker processes, this means `Scrapping` and `Saving` data.
+
+
+if you want the `API` only run
+```
+docker compose --profile no-scrapping up 
+```
 
 
 ## scrapper
