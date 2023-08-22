@@ -20,7 +20,7 @@ docker compose --profile no-scrapping up
 
 
 ## scrapper
-Currently, it take around `10 minutes`` to scrap the whole website on a local laptop.
+Currently, it take around `440 seconds` on a macbook air with a good connection.
 
 ## db
 The data is saved using `4 Tables`:
