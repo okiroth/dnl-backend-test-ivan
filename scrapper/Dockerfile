@@ -9,4 +9,4 @@ ENV NUM_THREADS=40
 
 COPY . .
 
-CMD [ "python", "./main.py" ]
+CMD [ "scrapy", "runspider", "./main.py", "-O quotes.jsonl" ]
