@@ -26,7 +26,7 @@ class QuotesSpider(scrapy.Spider):
                     "url": url,
                 }
             else:
-                print(org_url, '---->', url)
+                # print(org_url, '---->', url)
                 yield response.follow(url, self.parse)
 
     
