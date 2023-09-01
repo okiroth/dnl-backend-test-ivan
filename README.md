@@ -8,7 +8,7 @@ This project consists of `3` main processes:
 
 ## Run it
 ```
-docker compose up --build
+docker compose --prfile all up --build
 ```
 This command will run all Docker processes, this means `Scrapping` and `Saving` data.
 
