@@ -13,7 +13,7 @@ services:
     ports:
       - 8080:8080
     restart: always
-    profiles: ["all"]
+    profiles: ["no-scrapping", "all"]
 
   api:
     container_name: api_urparts
